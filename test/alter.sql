@@ -60,20 +60,22 @@ ALTER VIEW my_view
 ALTER VIEW IF EXISTS my_view
   RENAME TO my_other_view;
 
-ALTER TABLE "Role" ADD CONSTRAINT "pkRole" PRIMARY KEY ("roleId");
+ALTER TABLE "Role"
+  ADD CONSTRAINT "pkRole"
+    PRIMARY KEY ("roleId");
 
 ALTER TABLE "AccountRole" ADD CONSTRAINT "fkAccountRoleAccount"
-FOREIGN KEY ("accountId") REFERENCES "Account" ("accountId") ON DELETE CASCADE;
+  FOREIGN KEY ("accountId")
+    REFERENCES "Account" ("accountId") ON DELETE CASCADE;
 
 RENAME TABLES IF EXISTS old_table
-NOWAIT
-TO backup_table,
-new_table TO old_table;
+  NOWAIT
+  TO backup_table, new_table
+  TO old_table;
 
 ALTER TABLE tab
-ADD
-col1 VARCHAR(255) NOT NULL DEFAULT('EMPTY'),
-col2 VARCHAR(255) NOT NULL DEFAULT('EMPTY');
+  ADD col1 VARCHAR(255) NOT NULL DEFAULT('EMPTY'),
+  col2 VARCHAR(255) NOT NULL DEFAULT('EMPTY');
 
 ALTER SCHEMA sales RENAME TO mysales;
 
@@ -129,12 +131,12 @@ MAXVALUE NO MAXVALUE
 START WITH 11
 RESTART WITH 1111
 CACHE 100
-OWNED BY numbers.number_sequences
+OWNED BY numbers.number_sequences;
 
 ALTER TABLE "AccountRole" ADD CONSTRAINT "fkAccountRoleAccount"
-FOREIGN KEY ("accountId") REFERENCES "Account" ("accountId")
-ON DELETE SET NULL
-ON UPDATE SET DEFAULT;
+  FOREIGN KEY ("accountId") REFERENCES "Account" ("accountId")
+    ON DELETE SET NULL
+    ON UPDATE SET DEFAULT;
 
 ALTER TABLE table_name
-    ADD CONSTRAINT constraint_name UNIQUE (col1, col2, col3);
+  ADD CONSTRAINT constraint_name UNIQUE (col1, col2, col3);

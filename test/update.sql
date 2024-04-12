@@ -27,5 +27,5 @@ WHERE b.a = a.uid;
 UPDATE table_a as a
 SET d = 5
 FROM table_b b
-INNER JOIN table_c c ON c.b = b.uid
+  INNER JOIN table_c c ON c.b = b.uid
 WHERE b.a = a.uid;

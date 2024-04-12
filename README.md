@@ -5,8 +5,15 @@
 This package is compatible with and was tested against the tree-sitter grammar
 for SQL found at [tree-sitter-sql](https://github.com/DerekStride/tree-sitter-sql).
 
-**TODO**
-It provides indentation, font-locking, imenu, and navigation support for SQL buffers.
+It provides indentation and font-locking for SQL buffers.
+
+
+**TODO**:
+
++ imenu
++ navigation
+
+ 
 
 ![example](doc/example.png)
 

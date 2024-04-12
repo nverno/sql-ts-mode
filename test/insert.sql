@@ -13,15 +13,15 @@ FROM my_other_table;
 
 INSERT INTO my_table
 VALUES('foo','bar', 3)
-RETURNING *;
+  RETURNING *;
 
 INSERT INTO my_table
 VALUES('foo','bar', 3)
-RETURNING id;
+  RETURNING id;
 
 INSERT INTO my_table
 VALUES('foo','bar', 3)
-RETURNING id, val1, val2;
+  RETURNING id, val1, val2;
 
 INSERT INTO some_table
   (field)
@@ -57,14 +57,14 @@ SELECT
   col1,
   col2
 FROM
-(
-  SELECT
-    *
-  FROM
-    tab2
-  WHERE
-    key1 >= 'val'
-) a1;
+  (
+    SELECT
+      *
+    FROM
+      tab2
+    WHERE
+      key1 >= 'val'
+  ) a1;
 
 INSERT OVERWRITE tab1
 PARTITION (key1 = 'val1', key2 = 'val2')
@@ -72,17 +72,17 @@ SELECT
   col1,
   col2
 FROM
-(
-  SELECT
-    *
-  FROM
-    tab2
-  WHERE
-    key1 >= 'val'
-) a1;
+  (
+    SELECT
+      *
+    FROM
+      tab2
+    WHERE
+      key1 >= 'val'
+  ) a1;
 
 INSERT INTO some_table
   (field)
-  (SELECT "String value"
-   UNION
-   SELECT "String value");
+(SELECT "String value"
+UNION
+ SELECT "String value");

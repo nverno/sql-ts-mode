@@ -36,16 +36,104 @@
   :safe 'integerp
   :group 'SQL)
 
+(defcustom sql-ts-mode-statement-indent-offset 1
+  "Number of spaces to indent keywords in statements."
+  :type 'integer
+  :safe 'integerp
+  :group 'SQL)
+
+(defcustom sql-ts-mode-lineup-terms t
+  "Non-nil to lineup terms with their first sibling."
+  :type 'boolean
+  :safe 'booleanp
+  :group 'SQL)
+
+(defface sql-ts-mode-relation-name-face
+  '((t (:inherit font-lock-function-name-face)))
+  "Face for SQL relation names."
+  :group 'SQL)
+
+(defface sql-ts-mode-relation-use-face
+  '((t (:inherit font-lock-variable-use-face)))
+  "Face for SQL relation references."
+  :group 'SQL)
+
+
 ;;; Indentation
+
+(defun sql-ts-mode--select-term-parent (node parent &rest args)
+  (when (null sql-ts-mode-lineup-terms)
+    (setq node parent
+          parent (treesit-node-parent parent)))
+  (apply (alist-get (if sql-ts-mode-lineup-terms 'first-sibling 'parent-bol)
+                    treesit-simple-indent-presets)
+         node parent args))
+
+(defun sql-ts-mode--select-term-offset (&rest _)
+  (if sql-ts-mode-lineup-terms 0 sql-ts-mode-indent-offset))
+
 (defvar sql-ts-mode--indent-rules
   `((sql
      ((parent-is "program") column-0 0)
      ((node-is ")") parent-bol 0)
      ((node-is "]") parent-bol 0)
-     ((parent-is "column_definitions") parent-bol sql-ts-mode-indent-offset)
-     ((parent-is "string") no-indent)
+     ((node-is
+       ,(rx bos "keyword_"
+            (or "union" "end"
+                ;; WHEN clause
+                "then" "values" "set")
+            eos))
+      parent-bol 0)
+
+     ((match ,(rx bos (or "join" "relation") eos) "from")
+      parent-bol sql-ts-mode-indent-offset)
+     ((parent-is "from") parent-bol 0)
+
+     ((parent-is
+       ,(rx bos (or "where" "join" "group_by" "order_by" "case" "term"
+                    "cte" "invocation" "relation" "subquery"
+
+                    "alter_view" "alter_table"
+
+                    "create_table" "create_database" "create_type"
+                    "create_view" "create_materialized_view"
+                    "create_role" "create_sequence"
+                    "create_extension" "create_trigger"
+                    
+                    "column_definitions" "column_definition"
+                    "enum_elements"
+                    "window_function" "window_specification"
+                    "binary_expression"
+                    "storage_location" "row_format")
+            eos))
+      parent-bol sql-ts-mode-indent-offset)
+
+     ((node-is "constraint") parent-bol 0)
+     ((parent-is ,(rx bos (or "add_constraint" "constraints") eos))
+      parent-bol sql-ts-mode-indent-offset)
+
+     ((node-is "(") parent-bol 0)
+     ((node-is "statement") parent-bol sql-ts-mode-indent-offset)
+     ((match
+       ,(rx bos (or "select" "from" "where" "order_by") eos)
+       ,(rx bos (or "set_operation" "statement" "create_query")))
+      parent-bol sql-ts-mode-statement-indent-offset)
+     ((parent-is ,(rx bos (or "set_operation" "statement") eos))
+      parent-bol sql-ts-mode-indent-offset)
+
+     ;; FIXME: add_column grammar is funny
+     ((node-is "add_column") parent-bol sql-ts-mode-indent-offset)
+     ((parent-is "add_column") sql-ts-mode--select-term-parent
+      sql-ts-mode--select-term-offset)
+
+     ((node-is "select_expression") parent-bol sql-ts-mode-indent-offset)
+     ((parent-is "select_expression") sql-ts-mode--select-term-parent
+      sql-ts-mode--select-term-offset)
+
+     ;; ((parent-is "string") no-indent)
      (no-node parent-bol 0)))
   "Tree-sitter indent rules for `sql-ts-mode'.")
+
 
 ;;; Font-locking
 
@@ -109,7 +197,7 @@
       (keyword_safe)
       (keyword_cost)
       (keyword_strict)]
-     @font-lock-preprocessor-name
+     @font-lock-preprocessor-face
 
      ;; Modifiers
      [(keyword_materialized)
@@ -385,14 +473,52 @@
 
    :language 'sql
    :feature 'definition
-   '((object_reference
-      name: (identifier) @font-lock-variable-name-face)
+   (let ((create-kws '((keyword_if) (keyword_not) (keyword_exists))))
+     (cl-flet*
+         ((create-rule (name &optional object-ref kws id-node face)
+            (let ((node (intern (concat "create_" name)))
+                  (kw (intern (concat "keyword_" name)))
+                  (face (or face '@sql-ts-mode-relation-name-face)))
+              `(,node [(,kw) ,@kws ,@create-kws] :anchor
+                      ,@(or id-node
+                            (if object-ref `((object_reference
+                                              name: (identifier) ,face))
+                              `((identifier) ,face)))))))
+       `((column_definition
+          name: (identifier) @font-lock-property-name-face)
+         
+         (constraint
+          name: (identifier) @font-lock-property-name-face)
+         
+         (term
+          alias: (identifier) @font-lock-property-name-face)
 
-     (relation
-      alias: (identifier) @font-lock-variable-name-face)
+         (relation
+          alias: (identifier) @sql-ts-mode-relation-name-face)
 
-     (column_definition
-      name: (identifier) @font-lock-property-name-face))
+         (cte (identifier) @sql-ts-mode-relation-name-face :anchor
+              argument: (identifier) @font-lock-variable-name-face :?)
+         
+         ,(create-rule "schema")
+         ,(create-rule "role")
+         ,(create-rule "database")
+         ,(create-rule "extension")
+         ,(create-rule "type" 'object nil nil '@font-lock-type-face)
+         ,(create-rule "trigger" 'object)
+         ,(create-rule "table" 'object)
+         ,(create-rule "sequence" 'object '((keyword_temp)))
+
+         ,(create-rule
+           "view" nil '((keyword_temp))
+           '(((object_reference
+               name: (identifier) @sql-ts-mode-relation-name-face)
+              (identifier) @font-lock-variable-name-face :?
+              ("," (identifier) @font-lock-variable-name-face) :*)))
+         
+         (create_materialized_view
+          [(keyword_materialized) (keyword_view) ,@create-kws] :anchor
+          (object_reference
+           name: (identifier) @sql-ts-mode-relation-name-face)))))
 
    ;; :language 'sql
    ;; :feature 'builtin
@@ -462,7 +588,8 @@
 
    :language 'sql
    :feature 'constant
-   '([(literal) (keyword_true) (keyword_false)] @font-lock-constant-face)
+   '([(keyword_true) (keyword_false)] @font-lock-constant-face
+     (literal) @font-lock-string-face)
 
    ;; :language 'sql
    ;; :feature 'assignment
@@ -471,6 +598,10 @@
    :language 'sql
    :feature 'variable
    '((parameter) @font-lock-variable-use-face
+
+     (relation
+      (object_reference
+       name: (identifier) @font-lock-property-use-face))
 
      (field
       name: (identifier) @font-lock-property-use-face))
@@ -487,6 +618,7 @@
       (keyword_union)
       (keyword_except)
       (keyword_intersect)
+      (bang)
       "+"
       "-"
       "*"

@@ -1,5 +1,5 @@
 SELECT MAX(id)
-FROM my_table;
+ FROM my_table;
 
 SELECT now();
 
@@ -8,7 +8,7 @@ SELECT
   user_defined_func(user_id, 123, other_func(user_id, 321), user_id + 1 > 5) as something,
   regexp_replace(t.username, '^(.)[^@]+', '\1--', 'g') as username,
   created_at
-FROM my_table AS t;
+ FROM my_table AS t;
 
 select col_has_check(
   'one'::name,
@@ -25,39 +25,39 @@ FROM some_table
 GROUP BY some_field;
 
 SELECT GROUP_CONCAT(DISTINCT uid ORDER BY uid DESC SEPARATOR ",")
-FROM some_table
-GROUP BY some_field;
+ FROM some_table
+ GROUP BY some_field;
 
 SELECT GROUP_CONCAT(uid, ",")
-FROM some_table
-GROUP BY some_field;
+ FROM some_table
+ GROUP BY some_field;
 
 SELECT *
-FROM foo
-WHERE id = ANY (
-  SELECT 1
-)
+ FROM foo
+ WHERE id = ANY (
+   SELECT 1
+ );
 
 SELECT *
 FROM foo
 WHERE id IN (
   SELECT 1
   FROM bar
-)
+);
 
 SELECT *
-FROM foo
-WHERE (
-  NOT EXISTS (
-    SELECT 1
-    FROM bar
-    WHERE 0
-  ) OR EXISTS (
-    SELECT 1
-    FROM baz
-    WHERE 1
-  )
-)
+ FROM foo
+ WHERE (
+   NOT EXISTS (
+     SELECT 1
+     FROM bar
+     WHERE 0
+   ) OR EXISTS (
+     SELECT 1
+     FROM baz
+     WHERE 1
+   )
+ )
 
 create or replace function public.fn()
  returns int

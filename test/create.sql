@@ -66,10 +66,10 @@ CREATE TABLE my_table (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC;
 
 CREATE VIEW my_view AS
-SELECT * FROM my_table;
+  SELECT * FROM my_table;
 
 CREATE OR REPLACE VIEW my_view AS
-SELECT * FROM my_table;
+  SELECT * FROM my_table;
 
 CREATE TEMPORARY VIEW foo AS SELECT 1;
 CREATE TEMP VIEW foo AS SELECT 1;
@@ -81,12 +81,12 @@ CREATE VIEW foo AS SELECT 1 WITH LOCAL CHECK OPTION;
 CREATE VIEW foo AS SELECT 1 WITH CASCADED CHECK OPTION;
 
 CREATE MATERIALIZED VIEW my_view AS
-SELECT * FROM my_table
-WITH NO DATA;
+  SELECT * FROM my_table
+  WITH NO DATA;
 
 CREATE MATERIALIZED VIEW my_view AS
-SELECT * FROM my_table
-WITH NO DATA
+  SELECT * FROM my_table
+  WITH NO DATA
 
 CREATE TABLE type_test (
   a_bool BOOLEAN,
@@ -146,19 +146,19 @@ CREATE TABLE type_test (
 );
 
 CREATE TABLE tableName (
-    id NUMERIC NULL,
-    name VARCHAR NULL
+  id NUMERIC NULL,
+  name VARCHAR NULL
 );
 
 CREATE UNLOGGED TABLE tableName (
-    id NUMERIC
+  id NUMERIC
 );
 
 CREATE TABLE some_table(
-    `id` bigint(20) NOT NULL AUTO_INCREMENT,
-    `s_id` bigint(20) DEFAULT NULL,
-    INDEX `parent`(pid),
-    INDEX `range`(publication, published_at)
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `s_id` bigint(20) DEFAULT NULL,
+  INDEX `parent`(pid),
+  INDEX `range`(publication, published_at)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB;
 
 CREATE UNIQUE INDEX "akRoleName" ON "Role" ("name");
@@ -166,51 +166,51 @@ CREATE UNIQUE INDEX "akRoleName" ON "Role" ("name");
 CREATE TABLE tableName AS SELECT * FROM otherTable;
 
 CREATE TABLE tableName AS WITH _cte AS (
-    SELECT a FROM b
+  SELECT a FROM b
 )
-SELECT * FROM _cte
+ SELECT * FROM _cte
 
 CREATE TABLE tb AS
-(
-  SELECT 1 as col
-)
-UNION ALL
-(
-  SELECT 2 as col
-);
+  (
+   SELECT 1 as col
+  )
+  UNION ALL
+  (
+   SELECT 2 as col
+  );
 
-CREATE VIEW tableName AS WITH _cte AS (
-    SELECT a FROM b
+CREATE TEMP VIEW IF NOT EXISTS tableName AS WITH _cte AS (
+  SELECT a FROM b
 )
-SELECT * FROM _cte
+ SELECT * FROM _cte
 
 CREATE MATERIALIZED VIEW tableName AS WITH _cte AS (
-    SELECT a FROM b
+  SELECT a FROM b
 )
-SELECT * FROM _cte
+ SELECT * FROM _cte
 
 CREATE EXTERNAL TABLE tab
-(col int, col2 string, col3 binary)
-PARTITIONED BY (col int)
-SORT BY (col)
-ROW FORMAT DELIMITED FIELDS TERMINATED BY ';' ESCAPED BY '"'
-LINES TERMINATED BY '\n'
-STORED AS PARQUET
-LOCATION '/path/data'
-CACHED IN 'pool1' WITH REPLICATION = 2
+  (col int, col2 string, col3 binary)
+  PARTITIONED BY (col int)
+  SORT BY (col)
+  ROW FORMAT DELIMITED FIELDS TERMINATED BY ';' ESCAPED BY '"'
+    LINES TERMINATED BY '\n'
+  STORED AS PARQUET
+  LOCATION '/path/data'
+    CACHED IN 'pool1' WITH REPLICATION = 2
 
 CREATE TABLE tab
-PARTITIONED BY (col1, col2)
-STORED AS PARQUET
-AS
-SELECT
+  PARTITIONED BY (col1, col2)
+  STORED AS PARQUET
+  AS
+  SELECT
     col1,
     col2,
     col3
-FROM tab2
+   FROM tab2
 
 CREATE TABLE "Role" (
-    id BIGINT NOT NULL
+  id BIGINT NOT NULL
 );
 
 CREATE TABLE "Role" (
@@ -218,11 +218,11 @@ CREATE TABLE "Role" (
   "name" varchar NOT NULL,
   height_in numeric GENERATED ALWAYS AS (height_cm / 2.54) STORED,
   item_type_name TEXT GENERATED ALWAYS AS (
-     CASE item_type
-       WHEN 1 THEN 'foo'
-       WHEN 2 THEN 'bar'
-       ELSE 'UNKNOWN'
-     END
+    CASE item_type
+      WHEN 1 THEN 'foo'
+      WHEN 2 THEN 'bar'
+      ELSE 'UNKNOWN'
+    END
   ) VIRTUAL
 );
 
@@ -231,13 +231,13 @@ CREATE TABLE "Session" (
 );
 
 CREATE TABLE tab (
-    name   text,
-    array2 integer[3],
-    matrix text[][],
-    square integer[3][3],
-    array4 integer ARRAY[4],
-    array_ integer ARRAY,
-    multid integer[3][3][3][3]
+  name   text,
+  array2 integer[3],
+  matrix text[][],
+  square integer[3][3],
+  array4 integer ARRAY[4],
+  array_ integer ARRAY,
+  multid integer[3][3][3][3]
 );
 
 CREATE SCHEMA myschema;
@@ -245,31 +245,33 @@ CREATE SCHEMA myschema;
 CREATE SCHEMA IF NOT EXISTS test AUTHORIZATION joe;
 
 CREATE SCHEMA hollywood
-    CREATE TABLE films (title text, release date, awards text[])
-    CREATE VIEW winners AS
-        SELECT title, release FROM films WHERE awards IS NOT NULL;
+  CREATE TABLE films (title text, release date, awards text[])
+  CREATE VIEW winners AS
+    SELECT title, release FROM films WHERE awards IS NOT NULL;
 
 CREATE DATABASE hollywood
 
 CREATE DATABASE sales OWNER operations_dept;
 
 CREATE ROLE rapunzel
-WITH ROLE hansel, gretel
-IN GROUP fairy, tale
-ADMIN grandma
-PASSWORD 'secret'
-VALID UNTIL '2022-01-01'
-CONNECTION LIMIT 42
-NOLOGIN
-INHERIT;
+  WITH ROLE hansel, gretel
+  IN GROUP fairy, tale
+  ADMIN grandma
+  PASSWORD 'secret'
+  VALID UNTIL '2022-01-01'
+  CONNECTION LIMIT 42
+  NOLOGIN
+  INHERIT;
 
+CREATE SEQUENCE serial1
+CREATE TEMP SEQUENCE serial2
 CREATE TEMP SEQUENCE IF NOT EXISTS serial
-AS BIGINT
-INCREMENT BY 3
-MINVALUE 10
-MAXVALUE 9999
-START 101 CACHE 1000 NO CYCLE
-OWNED BY numbers.number_sequences;
+  AS BIGINT
+  INCREMENT BY 3
+  MINVALUE 10
+  MAXVALUE 9999
+  START 101 CACHE 1000 NO CYCLE
+  OWNED BY numbers.number_sequences;
 
 CREATE EXTENSION IF NOT EXISTS pg_stat_statements WITH SCHEMA public;
 
@@ -282,5 +284,5 @@ CREATE TRIGGER update_at BEFORE DELETE ON public.table_A FOR EACH ROW EXECUTE FU
 CREATE TRIGGER update_at_user AFTER UPDATE OF name ON public."user" EXECUTE FUNCTION public.update_timestamp();
 
 CREATE TABLE foo (
-	bar int NOT NULL REFERENCES bar(foo) ON DELETE CASCADE
+  bar int NOT NULL REFERENCES bar(foo) ON DELETE CASCADE
 );
