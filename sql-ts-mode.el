@@ -684,6 +684,11 @@
 
     (treesit-major-mode-setup)))
 
+(derived-mode-add-parents 'sql-ts-mode '(sql-mode))
+
+(if (treesit-ready-p 'sql)
+    (add-to-list 'auto-mode-alist '("\\.sql\\'" . sql-ts-mode)))
+
 (provide 'sql-ts-mode)
 ;; Local Variables:
 ;; coding: utf-8
