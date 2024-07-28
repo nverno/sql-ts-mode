@@ -2,10 +2,12 @@
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
-This package is compatible with and was tested against the tree-sitter grammar
-for SQL found at [tree-sitter-sql](https://github.com/DerekStride/tree-sitter-sql).
+This package provides a SQL major mode powered by tree-sitter.
 
-It provides indentation and font-locking for SQL buffers.
+The compatible tree-sitter grammar for SQL found can be installed from
+[tree-sitter-sql](https://github.com/DerekStride/tree-sitter-sql).
+
+This mode provides indentation and font-locking for SQL buffers.
 
 
 **TODO**:
@@ -30,7 +32,7 @@ Add the source to `treesit-language-source-alist`.
 ```elisp
 (add-to-list
  'treesit-language-source-alist
- '(sql "https://github.com/DerekStride/tree-sitter-sql"))
+ '(sql "https://github.com/DerekStride/tree-sitter-sql" "gh-pages"))
 ```
 
 Then run `M-x treesit-install-language-grammar` and select `sql` to install.

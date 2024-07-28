@@ -5,7 +5,7 @@
 ;; Version: 0.0.1
 ;; Package-Requires: ((emacs "29.1"))
 ;; Created: 12 April 2024
-;; Keywords:
+;; Keywords: sql languages tree-sitter
 
 ;; This file is not part of GNU Emacs.
 ;;
@@ -25,6 +25,12 @@
 ;; Floor, Boston, MA 02110-1301, USA.
 
 ;;; Commentary:
+;;
+;; This packages provides a major mode for SQL using tree-sitter.
+;;
+;; The required tree-sitter parser is available from
+;; https://github.com/DerekStride/tree-sitter-sql.
+;;
 ;;; Code:
 
 (require 'treesit)
@@ -62,6 +68,8 @@
 ;;; Indentation
 
 (defun sql-ts-mode--select-term-parent (node parent &rest args)
+  "Determine NODE's PARENT depending on `sql-ts-mode-lineup-terms'.
+ARGS are passed to function from `treesit-simple-indent-presets'."
   (when (null sql-ts-mode-lineup-terms)
     (setq node parent
           parent (treesit-node-parent parent)))
@@ -70,6 +78,7 @@
          node parent args))
 
 (defun sql-ts-mode--select-term-offset (&rest _)
+  "Return indent offset depending on `sql-ts-mode-lineup-terms'."
   (if sql-ts-mode-lineup-terms 0 sql-ts-mode-indent-offset))
 
 (defvar sql-ts-mode--indent-rules
@@ -136,14 +145,6 @@
 
 
 ;;; Font-locking
-
-(defconst sql-ts-mode--keywords
-  '()
-  "SQL keywords for font-locking.")
-
-(defconst sql-ts-mode--operators
-  '()
-  "SQL operators for tree-sitter font-locking.")
 
 (defvar sql-ts-mode-feature-list
   '(( comment definition)
@@ -590,11 +591,7 @@
    :feature 'constant
    '([(keyword_true) (keyword_false)] @font-lock-constant-face
      (literal) @font-lock-string-face)
-
-   ;; :language 'sql
-   ;; :feature 'assignment
-   ;; '()
-
+   
    :language 'sql
    :feature 'variable
    '((parameter) @font-lock-variable-use-face
