@@ -1,9 +1,13 @@
+
+
 WITH my_cte AS (
   SELECT one, two
    FROM my_table
 )
  SELECT *
  FROM my_cte;
+
+
 
 WITH first AS (
   INSERT INTO my_table (one, two)
@@ -16,6 +20,8 @@ WITH first AS (
  SELECT *
  FROM second;
 
+
+
 WITH first AS NOT MATERIALIZED (
   SELECT a FROM b
 ), second AS MATERIALIZED (
@@ -24,13 +30,20 @@ WITH first AS NOT MATERIALIZED (
 )
  SELECT *
  FROM second;
+
+
+
 (
   WITH data AS (
     SELECT 1 AS col
   )
  SELECT *
  FROM data
-);
+)
+
+;
+
+
 
 WITH top_cte AS (
   WITH nested_cte AS (
@@ -41,6 +54,8 @@ WITH top_cte AS (
 )
  SELECT *
  FROM top_cte;
+
+
 
 WITH top_cte AS (
   WITH nested_cte AS (
@@ -55,6 +70,8 @@ WITH top_cte AS (
  SELECT *
  FROM top_cte;
 
+
+
 with tb2 as (
   SELECT * FROM tb1
 )
@@ -64,22 +81,34 @@ with tb2 as (
   (SELECT * FROM tb2)
 )
 
+;
+
+
+
 with tb2 as (
   SELECT * FROM tb1
 )
   (SELECT * FROM tb2)
   UNION
   (SELECT * FROM tb2)
+
+;
+
+
 
 (
   with x as (select * from ints)
 )
 (select * from x);
 
+
+
 (
 (with x as (select * from ints))
 (select * from x)
 );
+
+
 
 WITH RECURSIVE included_parts(sub_part, part, quantity) AS (
   SELECT sub_part, part, quantity FROM parts WHERE part = 'our_product'
@@ -90,3 +119,5 @@ WITH RECURSIVE included_parts(sub_part, part, quantity) AS (
 )
  SELECT sub_part, SUM(quantity) as total_quantity
  FROM included_parts
+
+;

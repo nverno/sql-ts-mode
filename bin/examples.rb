@@ -16,7 +16,9 @@ sections.each do |section|
   s = section.split(/\n*---+\n+/).first
   next unless s
 
-  res << s.strip
+  s.chomp!(' \n\r')
+  res << s
+  res << ';' unless s.end_with?(';')
 end
 
 puts res.join("\n\n")

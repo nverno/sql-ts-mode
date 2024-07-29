@@ -1,3 +1,5 @@
+
+
 SELECT
   "user"->>'login' as login,
   "user"->'address' ->> 'city',

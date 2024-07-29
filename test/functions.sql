@@ -1,7 +1,13 @@
+
+
 SELECT MAX(id)
  FROM my_table;
 
+
+
 SELECT now();
+
+
 
 SELECT
   user_id,
@@ -10,6 +16,8 @@ SELECT
   created_at
  FROM my_table AS t;
 
+
+
 select col_has_check(
   'one'::name,
   'two'::name,
@@ -17,33 +25,51 @@ select col_has_check(
   'description'
 );
 
+
+
 SELECT COUNT(DISTINCT uid ORDER BY uid)
-FROM table_a;
+ FROM table_a;
+
+
 
 SELECT GROUP_CONCAT(uid SEPARATOR ",")
-FROM some_table
-GROUP BY some_field;
+ FROM some_table
+ GROUP BY some_field;
+
+
 
 SELECT GROUP_CONCAT(DISTINCT uid ORDER BY uid DESC SEPARATOR ",")
  FROM some_table
  GROUP BY some_field;
 
+
+
 SELECT GROUP_CONCAT(uid, ",")
  FROM some_table
  GROUP BY some_field;
+
+
 
 SELECT *
  FROM foo
  WHERE id = ANY (
    SELECT 1
- );
+ )
+
+;
+
+
 
 SELECT *
-FROM foo
-WHERE id IN (
-  SELECT 1
-  FROM bar
-);
+ FROM foo
+ WHERE id IN (
+   SELECT 1
+   FROM bar
+ )
+
+;
+
+
 
 SELECT *
  FROM foo
@@ -59,15 +85,23 @@ SELECT *
    )
  )
 
+;
+
+
+
 create or replace function public.fn()
- returns int
+   returns int
  language sql
 return 1;
+
+
 
 create or replace function public.fn(one int, two text)
  returns int
  language sql
 return 1;
+
+
 
 create or replace function public.fn()
   returns int
@@ -80,6 +114,8 @@ create or replace function public.fn()
   rows 1
 return 1;
 
+
+
 create or replace function public.fn()
   returns int
   as $$select 1$$
@@ -91,15 +127,21 @@ create or replace function public.fn()
   cost 100
   rows 1;
 
+
+
 create or replace function public.fn()
   returns int
   language sql
 as 'select 1;';
 
+
+
 create or replace function public.fn()
   returns int
   language sql
 as 'create table x (id int) row_format=dynamic';
+
+
 
 create or replace function public.fn()
   returns int
@@ -107,6 +149,8 @@ create or replace function public.fn()
 begin atomic
   return 1;
 end;
+
+
 
 create or replace function public.fn()
   returns int
@@ -116,6 +160,8 @@ begin
   return 1;
 end;
 $function$;
+
+
 
 create or replace function public.fn()
   returns int
@@ -130,6 +176,8 @@ begin
 end;
 $function$;
 
+
+
 create or replace function public.do_stuff()
   returns trigger
   language plpgsql
@@ -142,19 +190,19 @@ begin
       h.alpha,
       -- TODO factor in distance
       avg(e.beta) as e_beta
-    from htable h
-    cross join lateral (
-      select
-        id,
-        gamma,
-        delta,
-        centroid
-      from ftable
-      limit 3
-    ) as e
-    group by h.alpha
+     from htable h
+     cross join lateral (
+       select
+         id,
+         gamma,
+         delta,
+         centroid
+       from ftable
+       limit 3
+     ) as e
+     group by h.alpha
   )
-  update htable set epsilon = epsilon + e_beta
+    update htable set epsilon = epsilon + e_beta
   from knn
   where knn.alpha = htable.alpha;
 
@@ -163,10 +211,16 @@ begin
 end;
 $function$
 
+;
+
+
+
 create or replace function public.fn(IN arg1 text, OUT arg2 int DEFAULT 12, IN OUT arg3 text = 'test')
- returns int
+   returns int
  language sql
 return 1;
+
+
 
 create or replace function public.do_stuff()
   returns trigger
@@ -177,6 +231,10 @@ begin
 end;
 $a$
 
+;
+
+
+
 create or replace function public.do_stuff()
   returns trigger
   language plpgsql
@@ -185,3 +243,5 @@ begin
   return $.$text$.$;
 end;
 $_$
+
+;

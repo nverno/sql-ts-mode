@@ -64,6 +64,11 @@
   "Face for SQL relation references."
   :group 'SQL)
 
+(defface sql-ts-mode-schema-face
+  '((t (:inherit font-lock-type-face)))
+  "Face for SQL schema references."
+  :group 'SQL)
+
 
 ;;; Indentation
 

@@ -1,17 +1,28 @@
+
+
 CREATE TABLE my_schema.my_table (id BIGINT NOT NULL PRIMARY KEY);
+
+
 
 CREATE TABLE my_table (
   id BIGINT NOT NULL PRIMARY KEY,
-  date DATE DEFAULT NULL ASC
+  date DATE DEFAULT NULL ASC,
+  date2 DATE DEFAULT NULL UNIQUE ASC
 );
 
+
+
 CREATE TEMP TABLE my_table (id BIGINT NOT NULL PRIMARY KEY);
+
+
 
 CREATE TABLE my_table (
   host CHAR(50) NOT NULL,
   created_date DATE NOT NULL,
   CONSTRAINT pk PRIMARY KEY (host ASC, created_date DESC)
 );
+
+
 
 CREATE TABLE my_table (
   host CHAR(50) NOT NULL,
@@ -24,9 +35,23 @@ CREATE TABLE my_table (
   UNIQUE KEY `unique_idx` (`host`,`with_comment`)
 );
 
+
+
+CREATE TABLE products (
+  product_no integer,
+  name text,
+  price numeric CHECK (price > 0),
+  discounted_price numeric CHECK (discounted_price > 0),
+  CHECK (price > discounted_price)
+);
+
+
+
 CREATE TABLE IF NOT EXISTS `addresses` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT
 );
+
+
 
 CREATE TABLE `addresses` (
   `id` bigint(20) UNSIGNED ZEROFILL,
@@ -37,11 +62,15 @@ CREATE TABLE `addresses` (
   `id6` double(20,3) UNSIGNED
 );
 
+
+
 CREATE TABLE IF NOT EXISTS `addresses` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   PRIMARY KEY (`id`),
   KEY `addresses_s_id_index` (`s_id`)
 );
+
+
 
 CREATE TABLE IF NOT EXISTS `addresses` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
@@ -54,39 +83,61 @@ CREATE TABLE IF NOT EXISTS `addresses` (
   KEY `index_addresses_on_s_id_and_id` (`s_id`, `id`)
 );
 
+
+
 CREATE TABLE IF NOT EXISTS `addresses` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `s_id` bigint(20) DEFAULT NULL,
   `first_name` varchar(255) DEFAULT NULL
 );
 
+
+
 CREATE TABLE my_table (
   id BIGINT(20) NOT NULL,
   date DATE DEFAULT NULL ASC
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC;
 
+
+
 CREATE VIEW my_view AS
   SELECT * FROM my_table;
+
+
 
 CREATE OR REPLACE VIEW my_view AS
   SELECT * FROM my_table;
 
+
+
 CREATE TEMPORARY VIEW foo AS SELECT 1;
 CREATE TEMP VIEW foo AS SELECT 1;
 
+
+
 CREATE VIEW foo(a, b) AS SELECT 1 a, 2 b;
+
+
 
 CREATE VIEW foo AS SELECT 1 WITH CHECK OPTION;
 CREATE VIEW foo AS SELECT 1 WITH LOCAL CHECK OPTION;
 CREATE VIEW foo AS SELECT 1 WITH CASCADED CHECK OPTION;
 
+
+
 CREATE MATERIALIZED VIEW my_view AS
   SELECT * FROM my_table
   WITH NO DATA;
 
+
+
 CREATE MATERIALIZED VIEW my_view AS
   SELECT * FROM my_table
   WITH NO DATA
+
+;
+
+
 
 CREATE TABLE type_test (
   a_bool BOOLEAN,
@@ -145,14 +196,20 @@ CREATE TABLE type_test (
   a_uuid UUID
 );
 
+
+
 CREATE TABLE tableName (
   id NUMERIC NULL,
   name VARCHAR NULL
 );
 
+
+
 CREATE UNLOGGED TABLE tableName (
   id NUMERIC
 );
+
+
 
 CREATE TABLE some_table(
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
@@ -161,14 +218,24 @@ CREATE TABLE some_table(
   INDEX `range`(publication, published_at)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB;
 
+
+
 CREATE UNIQUE INDEX "akRoleName" ON "Role" ("name");
 
+
+
 CREATE TABLE tableName AS SELECT * FROM otherTable;
+
+
 
 CREATE TABLE tableName AS WITH _cte AS (
   SELECT a FROM b
 )
  SELECT * FROM _cte
+
+;
+
+
 
 CREATE TABLE tb AS
   (
@@ -179,15 +246,25 @@ CREATE TABLE tb AS
    SELECT 2 as col
   );
 
-CREATE TEMP VIEW IF NOT EXISTS tableName AS WITH _cte AS (
+
+
+CREATE VIEW tableName AS WITH _cte AS (
   SELECT a FROM b
 )
  SELECT * FROM _cte
+
+;
+
+
 
 CREATE MATERIALIZED VIEW tableName AS WITH _cte AS (
   SELECT a FROM b
 )
  SELECT * FROM _cte
+
+;
+
+
 
 CREATE EXTERNAL TABLE tab
   (col int, col2 string, col3 binary)
@@ -199,6 +276,10 @@ CREATE EXTERNAL TABLE tab
   LOCATION '/path/data'
     CACHED IN 'pool1' WITH REPLICATION = 2
 
+;
+
+
+
 CREATE TABLE tab
   PARTITIONED BY (col1, col2)
   STORED AS PARQUET
@@ -209,9 +290,15 @@ CREATE TABLE tab
     col3
    FROM tab2
 
+;
+
+
+
 CREATE TABLE "Role" (
   id BIGINT NOT NULL
 );
+
+
 
 CREATE TABLE "Role" (
   "roleId" bigint generated always as identity,
@@ -226,9 +313,13 @@ CREATE TABLE "Role" (
   ) VIRTUAL
 );
 
+
+
 CREATE TABLE "Session" (
   "ip" inet NOT NULL
 );
+
+
 
 CREATE TABLE tab (
   name   text,
@@ -240,18 +331,38 @@ CREATE TABLE tab (
   multid integer[3][3][3][3]
 );
 
+
+
 CREATE SCHEMA myschema;
 
+
+
 CREATE SCHEMA IF NOT EXISTS test AUTHORIZATION joe;
+
+
 
 CREATE SCHEMA hollywood
   CREATE TABLE films (title text, release date, awards text[])
   CREATE VIEW winners AS
     SELECT title, release FROM films WHERE awards IS NOT NULL;
 
+
+
 CREATE DATABASE hollywood
 
+;
+
+
+
+CREATE DATABASE IF NOT EXISTS hollywood
+
+;
+
+
+
 CREATE DATABASE sales OWNER operations_dept;
+
+
 
 CREATE ROLE rapunzel
   WITH ROLE hansel, gretel
@@ -263,8 +374,8 @@ CREATE ROLE rapunzel
   NOLOGIN
   INHERIT;
 
-CREATE SEQUENCE serial1
-CREATE TEMP SEQUENCE serial2
+
+
 CREATE TEMP SEQUENCE IF NOT EXISTS serial
   AS BIGINT
   INCREMENT BY 3
@@ -273,15 +384,27 @@ CREATE TEMP SEQUENCE IF NOT EXISTS serial
   START 101 CACHE 1000 NO CYCLE
   OWNED BY numbers.number_sequences;
 
+
+
 CREATE EXTENSION IF NOT EXISTS pg_stat_statements WITH SCHEMA public;
+
+
 
 CREATE EXTENSION pg_stat_statements VERSION '12' CASCADE;
 
+
+
 create view toto as select '123'::timestamp with check option;
+
+
 
 CREATE TRIGGER update_at BEFORE DELETE ON public.table_A FOR EACH ROW EXECUTE FUNCTION public.update_timestamp();
 
+
+
 CREATE TRIGGER update_at_user AFTER UPDATE OF name ON public."user" EXECUTE FUNCTION public.update_timestamp();
+
+
 
 CREATE TABLE foo (
   bar int NOT NULL REFERENCES bar(foo) ON DELETE CASCADE
