@@ -34,29 +34,28 @@ DELETE /* MAX_EXECUTION_TIME(500) */
 /*
 This is a query
 With a multiline comment
-*/
+ */
 SELECT id
   /*
   SELECT id FROM my_table;
-  */
+   */
  FROM my_table;
 
 
 
 /*
-*/
+ */
 SELECT id
   /*
 
-  */
+   */
  FROM my_table;
 
 
-
 /**
-* Javadoc style
-* -- with an inline comment
-*/
+ * Javadoc style
+ * -- with an inline comment
+ */
 SELECT id
   /******/
  FROM my_table;

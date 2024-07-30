@@ -41,8 +41,7 @@ SELECT *
  WHERE m.status = "success"
    AND m.name = "foobar"
    OR m.id = 5
-     AND m.is_not_deleted
-
+   AND m.is_not_deleted
 ;
 
 

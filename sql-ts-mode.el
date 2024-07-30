@@ -34,6 +34,7 @@
 ;;; Code:
 
 (require 'treesit)
+(require 'sql)                          ; `sql-mode-syntax-table'
 
 
 (defcustom sql-ts-mode-indent-offset 2
@@ -64,9 +65,14 @@
   "Face for SQL relation references."
   :group 'SQL)
 
-(defface sql-ts-mode-schema-face
+(defface sql-ts-mode-schema-name-face
   '((t (:inherit font-lock-type-face)))
-  "Face for SQL schema references."
+  "Face for SQL schema names."
+  :group 'SQL)
+
+(defface sql-ts-mode-database-name-face
+  '((t (:inherit font-lock-type-face)))
+  "Face for SQL database names."
   :group 'SQL)
 
 
@@ -89,25 +95,38 @@ ARGS are passed to function from `treesit-simple-indent-presets'."
 (defvar sql-ts-mode--indent-rules
   `((sql
      ((parent-is "program") column-0 0)
-     ((node-is ")") parent-bol 0)
+     ((node-is ")") standalone-parent 0)
      ((node-is "]") parent-bol 0)
-     ((node-is
-       ,(rx bos "keyword_"
-            (or "union" "end"
-                ;; WHEN clause
-                "then" "values" "set")
-            eos))
-      parent-bol 0)
+     ((node-is ,(rx bos "keyword_" (or "union" "end"
+                                       ;; WHEN clause
+                                       "then" "values" "set")
+                    eos))
+      parent 0)
+
+     ;; XXX(08/02/24): indent in /*...*/ like c-ts-common?
+     ((parent-is ,(rx bos (or "comment" "marginalia") eos)) no-indent)
 
      ((match ,(rx bos (or "join" "relation") eos) "from")
       parent-bol sql-ts-mode-indent-offset)
      ((parent-is "from") parent-bol 0)
 
-     ((parent-is
-       ,(rx bos (or "where" "join" "group_by" "order_by" "case" "term"
-                    "cte" "invocation" "relation" "subquery"
+     ((parent-is "insert") parent-bol 0)
+     
+     ((match nil "binary_expression" nil 1)
+      standalone-parent sql-ts-mode-indent-offset)
 
-                    "alter_view" "alter_table"
+     ((node-is "assignment") prev-sibling 0)
+     
+     ((parent-is
+       ,(rx bos (or "where" "join" "update" "group_by" "order_by" "case"
+                    "when_clause" "term" "field"
+                    "cte" "invocation" "relation" "subquery" "list"
+
+                    "create_function" "function_body" "function_arguments"
+
+                    "alter_view" "alter_table" "alter_sequence" "alter_type"
+
+                    "create_index" "index_fields"
 
                     "create_table" "create_database" "create_type"
                     "create_view" "create_materialized_view"
@@ -122,11 +141,13 @@ ARGS are passed to function from `treesit-simple-indent-presets'."
             eos))
       parent-bol sql-ts-mode-indent-offset)
 
-     ((node-is "constraint") parent-bol 0)
-     ((parent-is ,(rx bos (or "add_constraint" "constraints") eos))
+     ((node-is "constraint") parent-bol sql-ts-mode-indent-offset)
+     ((parent-is ,(rx bos (or "add_constraint" "constraint" "constraints") eos))
       parent-bol sql-ts-mode-indent-offset)
 
-     ((node-is "(") parent-bol 0)
+     ;; TODO(7/29/24): indent in nested cte.sql statements
+     ((match "(" "statement") standalone-parent sql-ts-mode-indent-offset)
+     ((node-is "(") standalone-parent 0)
      ((node-is "statement") parent-bol sql-ts-mode-indent-offset)
      ((match
        ,(rx bos (or "select" "from" "where" "order_by") eos)
@@ -140,8 +161,11 @@ ARGS are passed to function from `treesit-simple-indent-presets'."
      ((parent-is "add_column") sql-ts-mode--select-term-parent
       sql-ts-mode--select-term-offset)
 
+     ((parent-is "table_partition") parent sql-ts-mode-indent-offset)
+     
      ((node-is "select_expression") parent-bol sql-ts-mode-indent-offset)
-     ((parent-is "select_expression") sql-ts-mode--select-term-parent
+     ((parent-is ,(rx bos (or "select_expression")))
+      sql-ts-mode--select-term-parent
       sql-ts-mode--select-term-offset)
 
      ;; ((parent-is "string") no-indent)
@@ -154,9 +178,15 @@ ARGS are passed to function from `treesit-simple-indent-presets'."
 (defvar sql-ts-mode-feature-list
   '(( comment definition)
     ( keyword string)
-    ( builtin type constant number assignment function) ; property
-    ( operator variable bracket delimiter))
+    ( assignment builtin constant function number property type)
+    ( bracket delimiter operator variable))
   "`treesit-font-lock-feature-list' for `sql-ts-mode'.")
+
+;; TODO(7/29/24): nice to switch SQL product like `sql-mode', updating
+;; relevant font-locking for builtins
+(defconst sql-ts-mode--builtin-functions
+  '()
+  "SQL builtin functions for tree-sitter font-locking.")
 
 (defvar sql-ts-mode--font-lock-settings
   (treesit-font-lock-rules
@@ -164,14 +194,53 @@ ARGS are passed to function from `treesit-simple-indent-presets'."
    :feature 'comment
    '([(comment) (marginalia)] @font-lock-comment-face)
 
-   ;; :language 'sql
-   ;; :feature 'string
-   ;; '((literal) @font-lock-string-face)
+   :language 'sql
+   :feature 'operator
+   ;; TODO(7/29/24): (function_arguments [(keyword_in) (keyword_out)])
+   `((dollar_quote) @font-lock-misc-punctuation-face
 
-   ;; :language 'sql
-   ;; :feature 'escape-sequence
-   ;; :override t
-   ;; '((escape_sequence) @font-lock-escape-face)
+     (set_operation
+      operation: [(_)] @font-lock-operator-face)
+
+     [(not_like)
+      (similar_to)
+      (not_similar_to)
+      (is_not)
+      (keyword_is)
+      (not_distinct_from)
+      (distinct_from)
+      
+      (keyword_exists)
+      (keyword_like)
+      (keyword_in)
+      (keyword_and)
+      (keyword_or)
+      (keyword_not)
+      (keyword_by)
+      (keyword_on)
+      (keyword_do)
+      (keyword_union)
+      (keyword_except)
+      (keyword_intersect)
+      (keyword_match)
+      (bang)
+      "+"
+      "-"
+      "*"
+      "/"
+      "%"
+      "^"
+      ":="
+      "="
+      "<"
+      "<="
+      "!="
+      ">="
+      ">"
+      "<>"
+      (op_other)
+      (op_unary_other)]
+     @font-lock-operator-face)
 
    :language 'sql
    :feature 'keyword
@@ -180,7 +249,6 @@ ARGS are passed to function from `treesit-simple-indent-presets'."
       (keyword_desc)
       (keyword_terminated)
       (keyword_escaped)
-      (keyword_unsigned)
       (keyword_nulls)
       (keyword_last)
       (keyword_delimited)
@@ -205,13 +273,30 @@ ARGS are passed to function from `treesit-simple-indent-presets'."
       (keyword_strict)]
      @font-lock-preprocessor-face
 
+     ;; Format
+     [(keyword_delimiter)
+      (keyword_quote)
+      (keyword_escape)
+      (keyword_freeze)
+      (keyword_header)]
+     @font-lock-keyword-face
+     
+     ;; Hive file formats
+     [(keyword_parquet)
+      (keyword_rcfile)
+      (keyword_csv)
+      (keyword_textfile)
+      (keyword_avro)
+      (keyword_sequencefile)
+      (keyword_orc)
+      (keyword_jsonfile)]
+     
      ;; Modifiers
      [(keyword_materialized)
       (keyword_recursive)
       (keyword_temp)
       (keyword_temporary)
       (keyword_unlogged)
-      (keyword_external)
       (keyword_parquet)
       (keyword_csv)
       (keyword_rcfile)
@@ -220,10 +305,25 @@ ARGS are passed to function from `treesit-simple-indent-presets'."
       (keyword_avro)
       (keyword_jsonfile)
       (keyword_sequencefile)
-      (keyword_volatile)]
-     @font-lock-keyword-face
+      (keyword_volatile)
+      ;; Storage
+      (keyword_plain)
+      (keyword_external)
+      (keyword_extended)
+      (keyword_main)
+      ]
+     @font-lock-preprocessor-face
 
+     ;; 
+     [(keyword_compression)
+      (keyword_data)
+      (keyword_statistics)
+      (keyword_storage)]
+     @font-lock-keyword-face
+     
+     ;; Modifiers
      [(keyword_restrict)
+      (keyword_restricted)
       (keyword_unbounded)
       (keyword_unique)
       (keyword_cascade)
@@ -232,6 +332,8 @@ ARGS are passed to function from `treesit-simple-indent-presets'."
       (keyword_low_priority)
       (keyword_ignore)
       (keyword_nothing)
+      (keyword_overwrite)
+      ;; XXX(7/29/24): builtin face for check/cast?
       (keyword_check)
       (keyword_option)
       (keyword_local)
@@ -243,10 +345,17 @@ ARGS are passed to function from `treesit-simple-indent-presets'."
       (keyword_bin_pack)
       (keyword_noscan)
       (keyword_stats)
-      (keyword_statistics)
       (keyword_maxvalue)
       (keyword_minvalue)]
-     @font-lock-keyword-face
+     @font-lock-preprocessor-face
+     
+     ;; [(keyword_distinct)
+     ;;  (keyword_is)
+     ;;  (keyword_between)
+     ;;  (keyword_collate)
+     ;;  (keyword_between)
+     ;;  (keyword_matched)
+     ;;  (keyword_escape)]
      
      ;; Keywords
      [(keyword_case)
@@ -262,12 +371,13 @@ ARGS are passed to function from `treesit-simple-indent-presets'."
       (keyword_delete)
       (keyword_create)
       (keyword_insert)
+      (keyword_copy)
       (keyword_merge)
       (keyword_distinct)
       (keyword_replace)
       (keyword_update)
       (keyword_into)
-      (keyword_overwrite)
+      ;; (keyword_overwrite)
       (keyword_matched)
       (keyword_values)
       (keyword_value)
@@ -316,7 +426,6 @@ ARGS are passed to function from `treesit-simple-indent-presets'."
       (keyword_between)
       (keyword_window)
       (keyword_no)
-      (keyword_data)
       (keyword_type)
       (keyword_rename)
       (keyword_to)
@@ -387,7 +496,6 @@ ARGS are passed to function from `treesit-simple-indent-presets'."
       (keyword_regnamespace)
       (keyword_regproc)
       (keyword_regtype)
-      (keyword_restricted)
       (keyword_return)
       (keyword_returns)
       (keyword_separator)
@@ -475,7 +583,15 @@ ARGS are passed to function from `treesit-simple-indent-presets'."
      (term
       value: (cast
               name: (keyword_cast) @font-lock-function-call-face
-              parameter: (literal) :?)))
+              parameter: (literal) :?))
+     (keyword_cast) @font-lock-function-call-face
+
+     (create_trigger
+      (keyword_function)
+      (object_reference
+       name: (identifier) @font-lock-function-call-face))
+     ;; (function_argument (identifier) @font-lock-variable-use-face)
+     )
 
    :language 'sql
    :feature 'definition
@@ -490,22 +606,41 @@ ARGS are passed to function from `treesit-simple-indent-presets'."
                             (if object-ref `((object_reference
                                               name: (identifier) ,face))
                               `((identifier) ,face)))))))
-       `((column_definition
-          name: (identifier) @font-lock-property-name-face)
-         
-         (constraint
-          name: (identifier) @font-lock-property-name-face)
-         
-         (term
-          alias: (identifier) @font-lock-property-name-face)
+       `((column_definition name: [(literal) (identifier)] @font-lock-property-name-face)
 
-         (relation
-          alias: (identifier) @sql-ts-mode-relation-name-face)
+         (constraint name: (identifier) @font-lock-property-name-face)
+         
+         (term alias: (identifier) @font-lock-property-name-face)
+
+         (insert alias: (identifier) @font-lock-variable-name-face)
+
+         (statement alias: (identifier) @font-lock-variable-name-face)
+
+         (relation alias: (identifier) @font-lock-variable-name-face)
+
+         (lateral_cross_join alias: (identifier) @font-lock-variable-name-face)
 
          (cte (identifier) @sql-ts-mode-relation-name-face :anchor
               argument: (identifier) @font-lock-variable-name-face :?)
+
+         (table_option name: (identifier) @font-lock-property-name-face)
+         (table_option
+          (keyword_set) :anchor (identifier) @font-lock-property-name-face)
+
+         (create_role option: (identifier) @font-lock-preprocessor-face)
+
+         (create_function
+          (keyword_function) :anchor
+          (object_reference name: (identifier) @font-lock-function-name-face)
+          custom_type: (_) :? @font-lock-type-face)
+
+         (function_argument (identifier) @font-lock-variable-name-face)
+
+         (create_index
+          (keyword_index) :anchor
+          column: (identifier) @font-lock-variable-name-face)
          
-         ,(create-rule "schema")
+         ,(create-rule "schema" nil nil nil '@sql-ts-mode-schema-name-face)
          ,(create-rule "role")
          ,(create-rule "database")
          ,(create-rule "extension")
@@ -531,12 +666,75 @@ ARGS are passed to function from `treesit-simple-indent-presets'."
    ;; '()
 
    :language 'sql
+   :feature 'assignment
+   `((alter_table
+      (object_reference
+       name: (identifier) @sql-ts-mode-relation-use-face))
+     (alter_column name: (identifier) @font-lock-property-use-face)
+     (rename_column new_name: (identifier) @font-lock-property-name-face)
+
+     (alter_database
+      (rename_object
+       (object_reference name: (identifier) @sql-ts-mode-database-name-face)))
+     
+     (alter_view
+      (object_reference name: (identifier) @font-lock-variable-use-face))
+
+     (alter_schema
+      (identifier) (keyword_rename) (keyword_to) :anchor
+      (identifier) @sql-ts-mode-schema-name-face)
+
+     (alter_index
+      (keyword_index) :anchor [(keyword_if) (keyword_exists)] :* :anchor
+      (identifier) @font-lock-property-use-face)
+
+     (alter_index
+      (rename_object
+       (object_reference
+        name: (identifier) @font-lock-property-name-face)))
+
+     (alter_sequence
+      (rename_object
+       (object_reference
+        name: (identifier) @font-lock-property-name-face)))
+
+     (alter_role
+      (rename_object
+       (object_reference
+        name: (identifier) @font-lock-property-name-face)))
+
+     (add_constraint (identifier) @font-lock-property-name-face)
+
+     (set_schema schema: (identifier) @sql-ts-mode-schema-name-face)
+
+     (set_configuration option: (identifier) @font-lock-variable-name-face)
+     (alter_database
+      configuration_parameter: (identifier) @font-lock-variable-name-face)
+
+     (assignment
+      left: (field (identifier) @font-lock-property-name-face)))
+
+   :language 'sql
+   :feature 'property
+   `(;; (column name: (identifier) @font-lock-property-use-face)
+     (column (identifier) @font-lock-property-use-face)
+     (field name: (identifier) @font-lock-property-use-face)
+     (table_partition
+      key: (identifier) @font-lock-property-name-face)
+     (table_partition (identifier) @font-lock-property-use-face))
+
+   :language 'sql
    :feature 'type
-   '(;; (object_reference
-     ;;  name: (identifier) @font-lock-type-face)
+   '((object_reference
+      schema: (identifier) @sql-ts-mode-schema-name-face)
+
+     (column_definition custom_type: (_) @font-lock-type-face)
+
+     (create_type name: (identifier) @font-lock-property-name-face)
      
      [(keyword_int)
       (keyword_null)
+      (keyword_unsigned)
       (keyword_boolean)
       (keyword_binary)
       (keyword_varbinary)
@@ -584,60 +782,42 @@ ARGS are passed to function from `treesit-simple-indent-presets'."
       (keyword_geography)
       (keyword_box2d)
       (keyword_box3d)
-      (keyword_interval)]
+      (keyword_interval)
+      (keyword_stdin)]
      @font-lock-type-face)
 
    :language 'sql
    :feature 'number
+   :override 'keep
    '(((literal) @font-lock-number-face
-      (:match "^[+-]?[[:digit:]]*\\(?:\\.[[:digit:]]*\\)?$" @font-lock-number-face)))
+      (:match "^[+-]?[[:digit:]]*\\(?:\\.[[:digit:]]*\\)?$"
+              @font-lock-number-face))
+     ;; create_function
+     [(function_cost) (function_rows)] @font-lock-number-face)
+
+   :language 'sql
+   :feature 'string
+   '((literal) @font-lock-string-face
+     (statement "filename" @font-lock-string-face))
 
    :language 'sql
    :feature 'constant
    '([(keyword_true) (keyword_false)] @font-lock-constant-face
-     (literal) @font-lock-string-face)
+     (function_language (identifier) @font-lock-constant-face)
+     (alter_role option: (identifier) @font-lock-constant-face))
    
    :language 'sql
    :feature 'variable
    '((parameter) @font-lock-variable-use-face
-
-     (relation
+     ;; TODO(7/29/24): merge
+     (from
+      (relation
+       (object_reference
+        name: (identifier) @sql-ts-mode-relation-use-face)))
+     (from
       (object_reference
-       name: (identifier) @font-lock-property-use-face))
+       name: (identifier) @sql-ts-mode-relation-use-face)))
 
-     (field
-      name: (identifier) @font-lock-property-use-face))
-
-   :language 'sql
-   :feature 'operator
-   `([(keyword_in)
-      (keyword_and)
-      (keyword_or)
-      (keyword_not)
-      (keyword_by)
-      (keyword_on)
-      (keyword_do)
-      (keyword_union)
-      (keyword_except)
-      (keyword_intersect)
-      (bang)
-      "+"
-      "-"
-      "*"
-      "/"
-      "%"
-      "^"
-      ":="
-      "="
-      "<"
-      "<="
-      "!="
-      ">="
-      ">"
-      "<>"
-      (op_other)
-      (op_unary_other)]
-     @font-lock-operator-face)
 
    :language 'sql
    :feature 'delimiter
@@ -645,13 +825,20 @@ ARGS are passed to function from `treesit-simple-indent-presets'."
 
    :language 'sql
    :feature 'bracket
-   `(["(" ")" "[" "]"] @font-lock-bracket-face))
+   `(["(" ")" "[" "]"] @font-lock-bracket-face)
+
+   ;; :language 'sql
+   ;; :feature 'escape-sequence
+   ;; :override t
+   ;; '((escape_sequence) @font-lock-escape-face)
+   )
   "Tree-sitter font-lock settings for SQL.")
 
 
 ;;;###autoload
 (define-derived-mode sql-ts-mode prog-mode "SQL"
   "Major mode for editing SQL, powered by tree-sitter."
+  :syntax-table sql-mode-syntax-table
   :group 'SQL
 
   (when (treesit-ready-p 'sql)
@@ -660,12 +847,23 @@ ARGS are passed to function from `treesit-simple-indent-presets'."
     ;; Comments
     (setq-local comment-start "--")
     (setq-local comment-end "")
-    (setq-local comment-start-skip (rx "--" (* (syntax whitespace))))
-
+    (setq-local comment-start-skip (rx (or (seq "-" (+ "-"))
+                                           (seq "/" (+ "*")))
+                                       (* (syntax whitespace))))
+    (setq-local comment-end-skip
+                (rx (* (syntax whitespace))
+                    (group (or (syntax comment-end)
+                               (seq (+ "*") "/")))))
     (setq-local paragraph-separate "[\f]*$")
     (setq-local paragraph-start "[\n\f]")
     (setq-local paragraph-ignore-fill-prefix t)
     (setq-local escaped-string-quote "'")
+
+    ;; Electric
+    (setq-local electric-indent-chars
+                (append "();," electric-indent-chars))
+    (setq-local electric-layout-rules
+	        '((?\; . after) (?\( . after) (?\) . before)))
 
     ;; Abbrevs
     (setq-local abbrev-all-caps 1)

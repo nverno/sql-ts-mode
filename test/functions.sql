@@ -11,7 +11,9 @@ SELECT now();
 
 SELECT
   user_id,
-  user_defined_func(user_id, 123, other_func(user_id, 321), user_id + 1 > 5) as something,
+  user_defined_func(
+    user_id, 123, other_func(user_id, 321), user_id + 1 > 5
+  ) as something,
   regexp_replace(t.username, '^(.)[^@]+', '\1--', 'g') as username,
   created_at
  FROM my_table AS t;
@@ -90,16 +92,16 @@ SELECT *
 
 
 create or replace function public.fn()
-   returns int
- language sql
-return 1;
+  returns int
+  language sql
+  return 1;
 
 
 
 create or replace function public.fn(one int, two text)
- returns int
- language sql
-return 1;
+  returns int
+  language sql
+  return 1;
 
 
 
@@ -112,7 +114,7 @@ create or replace function public.fn()
   strict
   cost 100
   rows 1
-return 1;
+  return 1;
 
 
 
@@ -132,116 +134,113 @@ create or replace function public.fn()
 create or replace function public.fn()
   returns int
   language sql
-as 'select 1;';
+  as 'select 1;';
 
 
 
 create or replace function public.fn()
   returns int
   language sql
-as 'create table x (id int) row_format=dynamic';
+  as 'create table x (id int) row_format=dynamic';
 
 
 
 create or replace function public.fn()
   returns int
   language sql
-begin atomic
-  return 1;
-end;
+  begin atomic
+    return 1;
+  end;
+
+
+
+create or replace function public.fn() returns INT language plpgsql
+  as $function$
+    begin
+    return 1;
+  end;
+    $function$;
 
 
 
 create or replace function public.fn()
   returns int
   language plpgsql
-as $function$
-begin
-  return 1;
-end;
-$function$;
+  -- TODO(7/29/24): font-locking/indentation
+  as $function$
+    declare
+    one int;
+    two text := (select 'hello');
+    three text := 'world';
+    begin
+    return 1;
+  end;
+    $function$;
 
 
 
-create or replace function public.fn()
+create or replace function public.do_stuff()
+  returns trigger
+  language plpgsql
+  as $function$
+    begin
+    
+    -- comment!
+    with knn as (
+      select
+        h.alpha,
+        -- TODO factor in distance
+        avg(e.beta) as e_beta
+       from htable h
+       cross join lateral (
+         select
+           id,
+           gamma,
+           delta,
+           centroid
+         from ftable
+         limit 3
+       ) as e
+       group by h.alpha
+    )
+      update htable set epsilon = epsilon + e_beta
+        from knn
+        where knn.alpha = htable.alpha;
+
+    return new;
+
+  end;
+    $function$
+
+;
+
+
+
+create or replace function public.fn(
+  IN arg1 text, OUT arg2 int DEFAULT 12, IN OUT arg3 text = 'test'
+)
   returns int
-  language plpgsql
-as $function$
-declare
-  one int;
-  two text := (select 'hello');
-  three text := 'world';
-begin
+  language sql
   return 1;
-end;
-$function$;
 
 
 
 create or replace function public.do_stuff()
   returns trigger
   language plpgsql
-as $function$
-begin
-
-  -- comment!
-  with knn as (
-    select
-      h.alpha,
-      -- TODO factor in distance
-      avg(e.beta) as e_beta
-     from htable h
-     cross join lateral (
-       select
-         id,
-         gamma,
-         delta,
-         centroid
-       from ftable
-       limit 3
-     ) as e
-     group by h.alpha
-  )
-    update htable set epsilon = epsilon + e_beta
-  from knn
-  where knn.alpha = htable.alpha;
-
-  return new;
-
-end;
-$function$
-
+  as $a$
+    begin
+    return $b$text$b$;
+  end;
+    $a$
 ;
-
-
-
-create or replace function public.fn(IN arg1 text, OUT arg2 int DEFAULT 12, IN OUT arg3 text = 'test')
-   returns int
- language sql
-return 1;
-
 
 
 create or replace function public.do_stuff()
   returns trigger
   language plpgsql
-as $a$
-begin
-  return $b$text$b$;
-end;
-$a$
-
-;
-
-
-
-create or replace function public.do_stuff()
-  returns trigger
-  language plpgsql
-as $_$
-begin
-  return $.$text$.$;
-end;
-$_$
-
-;
+  as $_$
+    begin
+    return $.$text$.$;
+  end;
+    $_$ ;

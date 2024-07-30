@@ -1,5 +1,5 @@
 
 
 BEGIN
-CREATE TABLE FOO (bar INT);
+  CREATE TABLE FOO (bar INT);
 END;

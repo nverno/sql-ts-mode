@@ -111,17 +111,15 @@ FOREIGN KEY ("accountId") REFERENCES "Account" ("accountId") ON DELETE CASCADE;
 
 
 
-RENAME TABLES IF EXISTS old_table
-NOWAIT
-TO backup_table,
-new_table TO old_table;
+RENAME TABLES IF EXISTS old_table NOWAIT TO backup_table,
+                                            new_table TO old_table;
 
 
 
 ALTER TABLE tab
-ADD
-col1 VARCHAR(255) NOT NULL DEFAULT('EMPTY'),
-col2 VARCHAR(255) NOT NULL DEFAULT('EMPTY');
+  ADD
+  col1 VARCHAR(255) NOT NULL DEFAULT('EMPTY'),
+  col2 VARCHAR(255) NOT NULL DEFAULT('EMPTY');
 
 
 
@@ -210,23 +208,24 @@ ALTER SEQUENCE serial OWNER TO count_von_count;
 
 
 ALTER SEQUENCE IF EXISTS serial
-AS BIGINT
-INCREMENT BY 2
-MINVALUE 3
-MAXVALUE NO MAXVALUE
-START WITH 11
-RESTART WITH 1111
-CACHE 100
-OWNED BY numbers.number_sequences
-
+  AS BIGINT
+  INCREMENT BY 2
+  MINVALUE 3
+  MAXVALUE NO MAXVALUE
+  START WITH 11
+  RESTART WITH 1111
+  CACHE 100
+  OWNED BY numbers.number_sequences
 ;
 
 
 
-ALTER TABLE "AccountRole" ADD CONSTRAINT "fkAccountRoleAccount"
-FOREIGN KEY ("accountId") REFERENCES "Account" ("accountId")
-ON DELETE SET NULL
-ON UPDATE SET DEFAULT;
+ALTER TABLE "AccountRole"
+  ADD CONSTRAINT "fkAccountRoleAccount"
+    FOREIGN KEY ("accountId")
+      REFERENCES "Account" ("accountId")
+      ON DELETE SET NULL
+      ON UPDATE SET DEFAULT;
 
 
 
