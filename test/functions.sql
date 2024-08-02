@@ -1,14 +1,24 @@
+
+
 SELECT MAX(id)
  FROM my_table;
 
+
+
 SELECT now();
+
+
 
 SELECT
   user_id,
-  user_defined_func(user_id, 123, other_func(user_id, 321), user_id + 1 > 5) as something,
+  user_defined_func(
+    user_id, 123, other_func(user_id, 321), user_id + 1 > 5
+  ) as something,
   regexp_replace(t.username, '^(.)[^@]+', '\1--', 'g') as username,
   created_at
  FROM my_table AS t;
+
+
 
 select col_has_check(
   'one'::name,
@@ -17,33 +27,51 @@ select col_has_check(
   'description'
 );
 
+
+
 SELECT COUNT(DISTINCT uid ORDER BY uid)
-FROM table_a;
+ FROM table_a;
+
+
 
 SELECT GROUP_CONCAT(uid SEPARATOR ",")
-FROM some_table
-GROUP BY some_field;
+ FROM some_table
+ GROUP BY some_field;
+
+
 
 SELECT GROUP_CONCAT(DISTINCT uid ORDER BY uid DESC SEPARATOR ",")
  FROM some_table
  GROUP BY some_field;
 
+
+
 SELECT GROUP_CONCAT(uid, ",")
  FROM some_table
  GROUP BY some_field;
+
+
 
 SELECT *
  FROM foo
  WHERE id = ANY (
    SELECT 1
- );
+ )
+
+;
+
+
 
 SELECT *
-FROM foo
-WHERE id IN (
-  SELECT 1
-  FROM bar
-);
+ FROM foo
+ WHERE id IN (
+   SELECT 1
+   FROM bar
+ )
+
+;
+
+
 
 SELECT *
  FROM foo
@@ -59,15 +87,23 @@ SELECT *
    )
  )
 
+;
+
+
+
 create or replace function public.fn()
- returns int
- language sql
-return 1;
+  returns int
+  language sql
+  return 1;
+
+
 
 create or replace function public.fn(one int, two text)
- returns int
- language sql
-return 1;
+  returns int
+  language sql
+  return 1;
+
+
 
 create or replace function public.fn()
   returns int
@@ -78,7 +114,9 @@ create or replace function public.fn()
   strict
   cost 100
   rows 1
-return 1;
+  return 1;
+
+
 
 create or replace function public.fn()
   returns int
@@ -91,97 +129,118 @@ create or replace function public.fn()
   cost 100
   rows 1;
 
-create or replace function public.fn()
-  returns int
-  language sql
-as 'select 1;';
+
 
 create or replace function public.fn()
   returns int
   language sql
-as 'create table x (id int) row_format=dynamic';
+  as 'select 1;';
+
+
 
 create or replace function public.fn()
   returns int
   language sql
-begin atomic
-  return 1;
-end;
+  as 'create table x (id int) row_format=dynamic';
+
+
+
+create or replace function public.fn()
+  returns int
+  language sql
+  begin atomic
+    return 1;
+  end;
+
+
+
+create or replace function public.fn() returns INT language plpgsql
+  as $function$
+    begin
+    return 1;
+  end;
+    $function$;
+
+
 
 create or replace function public.fn()
   returns int
   language plpgsql
-as $function$
-begin
-  return 1;
-end;
-$function$;
+  -- TODO(7/29/24): font-locking/indentation
+  as $function$
+    declare
+    one int;
+    two text := (select 'hello');
+    three text := 'world';
+    begin
+    return 1;
+  end;
+    $function$;
 
-create or replace function public.fn()
-  returns int
-  language plpgsql
-as $function$
-declare
-  one int;
-  two text := (select 'hello');
-  three text := 'world';
-begin
-  return 1;
-end;
-$function$;
+
 
 create or replace function public.do_stuff()
   returns trigger
   language plpgsql
-as $function$
-begin
-
-  -- comment!
-  with knn as (
-    select
-      h.alpha,
-      -- TODO factor in distance
-      avg(e.beta) as e_beta
-    from htable h
-    cross join lateral (
+  as $function$
+    begin
+    
+    -- comment!
+    with knn as (
       select
-        id,
-        gamma,
-        delta,
-        centroid
-      from ftable
-      limit 3
-    ) as e
-    group by h.alpha
-  )
-  update htable set epsilon = epsilon + e_beta
-  from knn
-  where knn.alpha = htable.alpha;
+        h.alpha,
+        -- TODO factor in distance
+        avg(e.beta) as e_beta
+       from htable h
+       cross join lateral (
+         select
+           id,
+           gamma,
+           delta,
+           centroid
+         from ftable
+         limit 3
+       ) as e
+       group by h.alpha
+    )
+      update htable set epsilon = epsilon + e_beta
+        from knn
+        where knn.alpha = htable.alpha;
 
-  return new;
+    return new;
 
-end;
-$function$
+  end;
+    $function$
 
-create or replace function public.fn(IN arg1 text, OUT arg2 int DEFAULT 12, IN OUT arg3 text = 'test')
- returns int
- language sql
-return 1;
+;
+
+
+
+create or replace function public.fn(
+  IN arg1 text, OUT arg2 int DEFAULT 12, IN OUT arg3 text = 'test'
+)
+  returns int
+  language sql
+  return 1;
+
+
 
 create or replace function public.do_stuff()
   returns trigger
   language plpgsql
-as $a$
-begin
-  return $b$text$b$;
-end;
-$a$
+  as $a$
+    begin
+    return $b$text$b$;
+  end;
+    $a$
+;
+
 
 create or replace function public.do_stuff()
   returns trigger
   language plpgsql
-as $_$
-begin
-  return $.$text$.$;
-end;
-$_$
+  as $_$
+    begin
+    return $.$text$.$;
+  end;
+    $_$ ;
