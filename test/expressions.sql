@@ -121,7 +121,6 @@ SELECT 'fat cats ate rats' @@ !! ('cat' <-> 'rat'::tsquery);
 
 
 
-SELECT
-  (ARRAY[1, 4, 9])[1+1],
-  (ARRAY[1, 4, 9])[1:3 - 1],
-  (ARRAY[1, 4, 9])[1:2][3];
+SELECT (ARRAY[1, 4, 9])[1+1],
+       (ARRAY[1, 4, 9])[1:3 - 1],
+       (ARRAY[1, 4, 9])[1:2][3];

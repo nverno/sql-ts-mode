@@ -19,7 +19,7 @@ CREATE TEMP TABLE my_table (id BIGINT NOT NULL PRIMARY KEY);
 CREATE TABLE my_table (
   host CHAR(50) NOT NULL,
   created_date DATE NOT NULL,
-    CONSTRAINT pk PRIMARY KEY (host ASC, created_date DESC)
+  CONSTRAINT pk PRIMARY KEY (host ASC, created_date DESC)
 );
 
 
@@ -31,8 +31,8 @@ CREATE TABLE my_table (
   random TEXT DEFAULT 'test',
   with_comment TEXT COMMENT 'this column has a comment',
   with_comment_and_constraint TEXT DEFAULT 'test' COMMENT 'this column also has a comment',
-    KEY `idx` (`host`, `created_date`),
-    UNIQUE KEY `unique_idx` (`host`,`with_comment`)
+  KEY `idx` (`host`, `created_date`),
+  UNIQUE KEY `unique_idx` (`host`,`with_comment`)
 );
 
 
@@ -42,7 +42,7 @@ CREATE TABLE products (
   name text,
   price numeric CHECK (price > 0),
   discounted_price numeric CHECK (discounted_price > 0),
-    CHECK (price > discounted_price)
+  CHECK (price > discounted_price)
 );
 
 
@@ -66,8 +66,8 @@ CREATE TABLE `addresses` (
 
 CREATE TABLE IF NOT EXISTS `addresses` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
-    PRIMARY KEY (`id`),
-    KEY `addresses_s_id_index` (`s_id`)
+  PRIMARY KEY (`id`),
+  KEY `addresses_s_id_index` (`s_id`)
 );
 
 
@@ -77,10 +77,10 @@ CREATE TABLE IF NOT EXISTS `addresses` (
   `s_id` bigint(20) DEFAULT NULL,
   `first_name` varchar(255) DEFAULT NULL,
   `updated_at` datetime DEFAULT NULL,
-    PRIMARY KEY (`id`),
-    KEY `addresses_s_id_index` (`s_id`),
-    KEY `index_addresses_on_updated_at` (`updated_at`),
-    KEY `index_addresses_on_s_id_and_id` (`s_id`, `id`)
+  PRIMARY KEY (`id`),
+  KEY `addresses_s_id_index` (`s_id`),
+  KEY `index_addresses_on_updated_at` (`updated_at`),
+  KEY `index_addresses_on_s_id_and_id` (`s_id`, `id`)
 );
 
 
@@ -214,8 +214,8 @@ CREATE UNLOGGED TABLE tableName (
 CREATE TABLE some_table(
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `s_id` bigint(20) DEFAULT NULL,
-    INDEX `parent`(pid),
-    INDEX `range`(publication, published_at)
+  INDEX `parent`(pid),
+  INDEX `range`(publication, published_at)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB;
 
 

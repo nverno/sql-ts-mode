@@ -73,33 +73,32 @@ SELECT col1,
        col2
 FROM
   (SELECT *
-   FROM tab2
-   WHERE key1 >= 'val' ) a1;
+    FROM tab2
+    WHERE key1 >= 'val' ) a1;
 
 
 INSERT OVERWRITE tab1 PARTITION (key1 = 'val1',
-                                 key2 = 'val2')
+                        key2 = 'val2')
 SELECT col1,
        col2
 FROM
   (SELECT *
-   FROM tab2
-   WHERE key1 >= 'val' ) a1;
+    FROM tab2
+    WHERE key1 >= 'val' ) a1;
 
 
 INSERT INTO some_table (field)
-  (SELECT "String value"
-   UNION SELECT "String value");
+(SELECT "String value"
+ UNION SELECT "String value");
 
 COPY some_table (a, b, c)
-FROM STDIN (FORMAT CSV);
+  FROM STDIN (FORMAT CSV);
 
 COPY some_table (a, b, c)
-FROM '/tmp/data.csv' (FORMAT CSV);
+  FROM '/tmp/data.csv' (FORMAT CSV);
 
 COPY some_table (a, b, c)
-FROM STDIN WITH (FORMAT CSV
-                 DELIMITER ';' QUOTE '"' ESCAPE '\'
+  FROM STDIN WITH (FORMAT CSV
+  DELIMITER ';' QUOTE '"' ESCAPE '\'
   FREEZE true
-  HEADER MATCH
-  NULL 'NaN');
+  HEADER MATCH NULL 'NaN');

@@ -110,7 +110,9 @@ ARGS are passed to function from `treesit-simple-indent-presets'."
       parent-bol sql-ts-mode-indent-offset)
      ((parent-is "from") parent-bol 0)
 
-     ((parent-is "insert") parent-bol 0)
+     ((match "list" "insert") prev-sibling 0)
+     ((parent-is ,(rx bos (or "insert" "update") eos))
+      parent-bol 0)
      
      ((match nil "binary_expression" nil 1)
       standalone-parent sql-ts-mode-indent-offset)
@@ -118,7 +120,7 @@ ARGS are passed to function from `treesit-simple-indent-presets'."
      ((node-is "assignment") prev-sibling 0)
      
      ((parent-is
-       ,(rx bos (or "where" "join" "update" "group_by" "order_by" "case"
+       ,(rx bos (or "where" "join" "group_by" "order_by" "case"
                     "when_clause" "term" "field"
                     "cte" "invocation" "relation" "subquery" "list"
 
@@ -141,7 +143,8 @@ ARGS are passed to function from `treesit-simple-indent-presets'."
             eos))
       parent-bol sql-ts-mode-indent-offset)
 
-     ((node-is "constraint") parent-bol sql-ts-mode-indent-offset)
+     ;; ((node-is "constraint") parent-bol sql-ts-mode-indent-offset)
+     ((node-is "constraint") parent-bol 0)
      ((parent-is ,(rx bos (or "add_constraint" "constraint" "constraints") eos))
       parent-bol sql-ts-mode-indent-offset)
 
@@ -711,8 +714,13 @@ ARGS are passed to function from `treesit-simple-indent-presets'."
      (alter_database
       configuration_parameter: (identifier) @font-lock-variable-name-face)
 
+     (set_statement
+      (object_reference name: (identifier) @font-lock-variable-name-face))
+     (reset_statement
+      (object_reference name: (identifier) @font-lock-variable-name-face))
+
      (assignment
-      left: (field (identifier) @font-lock-property-name-face)))
+      left: (field (identifier) @font-lock-variable-name-face)))
 
    :language 'sql
    :feature 'property

@@ -27,7 +27,7 @@ ALTER TYPE boxes OWNER TO user2 ;
 
 
 ALTER TYPE boxes
-SET SCHEMA new_schema ;
+  SET SCHEMA new_schema ;
 
 
 ALTER TYPE boxes ADD VALUE IF NOT EXISTS 'color' AFTER 'weight' ;
@@ -40,7 +40,7 @@ ALTER TYPE boxes ADD ATTRIBUTE label text ;
 
 
 ALTER TYPE boxes
-DROP ATTRIBUTE IF EXISTS label ;
+  DROP ATTRIBUTE IF EXISTS label ;
 
 
 ALTER TYPE boxes ADD ATTRIBUTE label varchar(255) ;
@@ -58,4 +58,4 @@ VALUES (ROW(10, 500, 'Box1')),
 SELECT (boxes).height,
        (boxes).mass,
        (boxes).label
-FROM shipments ;
+ FROM shipments ;
