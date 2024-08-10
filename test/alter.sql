@@ -112,13 +112,12 @@ FOREIGN KEY ("accountId") REFERENCES "Account" ("accountId") ON DELETE CASCADE;
 
 
 RENAME TABLES IF EXISTS old_table NOWAIT TO backup_table,
-                                            new_table TO old_table;
+  new_table TO old_table;
 
 
 
 ALTER TABLE tab
-  ADD
-  col1 VARCHAR(255) NOT NULL DEFAULT('EMPTY'),
+  ADD col1 VARCHAR(255) NOT NULL DEFAULT('EMPTY'),
   col2 VARCHAR(255) NOT NULL DEFAULT('EMPTY');
 
 
@@ -222,10 +221,10 @@ ALTER SEQUENCE IF EXISTS serial
 
 ALTER TABLE "AccountRole"
   ADD CONSTRAINT "fkAccountRoleAccount"
-    FOREIGN KEY ("accountId")
-      REFERENCES "Account" ("accountId")
-      ON DELETE SET NULL
-      ON UPDATE SET DEFAULT;
+  FOREIGN KEY ("accountId")
+    REFERENCES "Account" ("accountId")
+    ON DELETE SET NULL
+    ON UPDATE SET DEFAULT;
 
 
 
@@ -248,9 +247,10 @@ ALTER TABLE table_name
 
 
 ALTER TABLE table_name
-    ALTER COLUMN col1 SET COMPRESSION lz4;
+  ALTER COLUMN col1
+    SET COMPRESSION lz4;
 
 
 
 ALTER TABLE table_name
-    ALTER COLUMN col1 SET STATISTICS 100;
+  ALTER COLUMN col1 SET STATISTICS 100;

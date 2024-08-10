@@ -166,7 +166,6 @@ create or replace function public.fn() returns INT language plpgsql
 create or replace function public.fn()
   returns int
   language plpgsql
-  -- TODO(7/29/24): font-locking/indentation
   as $function$
     declare
     one int;
@@ -204,8 +203,8 @@ create or replace function public.do_stuff()
        group by h.alpha
     )
       update htable set epsilon = epsilon + e_beta
-        from knn
-        where knn.alpha = htable.alpha;
+      from knn
+      where knn.alpha = htable.alpha;
 
     return new;
 

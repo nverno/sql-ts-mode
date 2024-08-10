@@ -120,7 +120,7 @@ SELECT id
 SELECT id
  FROM my_table
  LIMIT 5
-OFFSET 40;
+ OFFSET 40;
 
 
 
@@ -278,15 +278,14 @@ SELECT id
  LIMIT 1;
 
 
-
-SELECT 1 UNION ALL SELECT 2;
-
+SELECT 1
+UNION ALL
+SELECT 2;
 
 
 (SELECT * FROM tb2)
 UNION
 (SELECT * FROM tb2)
-
 ;
 
 
@@ -295,15 +294,12 @@ UNION
   (SELECT * FROM tb2)
   UNION
   (SELECT * FROM tb2)
-)
-
-;
-
+);
 
 
 SELECT a FROM one
-  INTERSECT
- SELECT b FROM two;
+INTERSECT
+SELECT b FROM two;
 
 
 
@@ -325,11 +321,12 @@ SELECT
 
 
 
-SELECT a, CASE
-  WHEN b = 1 THEN 'yes'
-  WHEN b = 2 THEN 'maybe'
-  ELSE 'no'
-          END AS is_b,
+SELECT a,
+       CASE
+         WHEN b = 1 THEN 'yes'
+         WHEN b = 2 THEN 'maybe'
+         ELSE 'no'
+       END AS is_b,
        CASE b
          WHEN 1 THEN 'yes'
          WHEN 2 THEN 'maybe'
@@ -355,7 +352,8 @@ SELECT c._id, c.p_id
    AND c.p_id in (1)
    AND cp.ch_id = 6
    AND cp.is_published = TRUE
- ORDER BY my_table.title, my_table.id;
+ ORDER BY my_table.title,
+   my_table.id;
 
 
 
@@ -389,7 +387,9 @@ SELECT a
 SELECT
   *
  FROM
-   (VALUES (1, 2), (3, 4)) AS V (col1, col2);
+   (VALUES (1, 2),
+           (3, 4))
+     AS V (col1, col2);
 
 
 
@@ -398,7 +398,7 @@ WITH test_data AS (
     *
    FROM
      (VALUES
-        (true))
+      (true))
        AS t (a)
 )
  SELECT
@@ -514,5 +514,5 @@ SELECT
  FROM (
    SELECT * FROM tb01
    UNION ALL
-    SELECT * FROM tb01
+   SELECT * FROM tb01
  ) a1;

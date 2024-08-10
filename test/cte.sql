@@ -54,19 +54,19 @@ with tb2 as
   (SELECT *
    FROM tb1) (
   (SELECT *
-   FROM tb2)
+  FROM tb2)
   UNION
   (SELECT *
-   FROM tb2)) ;
+  FROM tb2));
 
 with tb2 as
   (SELECT *
    FROM tb1)
   (SELECT *
-   FROM tb2)
+  FROM tb2)
   UNION
   (SELECT *
-   FROM tb2) ;
+  FROM tb2) ;
 
 (with x as
   (select *
@@ -80,18 +80,23 @@ with tb2 as
   (SELECT *
  FROM x));
 
-WITH RECURSIVE included_parts(sub_part, part, quantity) AS
+WITH RECURSIVE included_parts(
+  sub_part,
+  part,
+  quantity
+) AS
   (SELECT sub_part,
           part,
           quantity
    FROM parts
    WHERE part = 'our_product'
-   UNION ALL SELECT p.sub_part,
-                    p.part,
-                    p.quantity * pr.quantity
+   UNION ALL
+   SELECT p.sub_part,
+          p.part,
+          p.quantity * pr.quantity
    FROM included_parts pr,
      parts p
-   WHERE p.part = pr.sub_part )
+   WHERE p.part = pr.sub_part)
  SELECT sub_part,
         SUM(quantity) as total_quantity
  FROM included_parts ;
