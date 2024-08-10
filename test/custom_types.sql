@@ -11,7 +11,11 @@ CREATE TYPE cities AS (cityname text, population INTEGER);
 CREATE TYPE marathon AS RANGE (SUBTYPE = sports) ;
 
 
-CREATE TYPE bigobj (INPUT = lo_filein, OUTPUT = lo_fileout, INTERNALLENGTH = VARIABLE);
+CREATE TYPE bigobj (
+  INPUT = lo_filein,
+  OUTPUT = lo_fileout,
+  INTERNALLENGTH = VARIABLE
+);
 
 
 DROP TYPE IF EXISTS boxes CASCADE;

@@ -6,7 +6,8 @@ CREATE INDEX ON tab(col);
 
 CREATE UNIQUE INDEX CONCURRENTLY
   IF NOT EXISTS idx1
-  ON tab USING HASH(col ASC)
+  ON tab
+  USING HASH(col ASC)
   WHERE tab.col > 10;
 
 

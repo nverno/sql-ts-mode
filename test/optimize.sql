@@ -16,12 +16,14 @@ COMPUTE STATS my_table (col1);
 
 
 
-COMPUTE INCREMENTAL STATS my_table PARTITION (partition_col=col1);
+COMPUTE INCREMENTAL STATS my_table
+  PARTITION (partition_col=col1);
 
 
 
 ANALYZE TABLE mytable
-  PARTITION (partcol1=col1, partcol2=col2)
+  PARTITION (partcol1=col1,
+             partcol2=col2)
   COMPUTE STATISTICS
   FOR COLUMNS
   CACHE METADATA
@@ -32,7 +34,7 @@ ANALYZE TABLE mytable
 
 
 OPTIMIZE mytable REWRITE DATA USING BIN_PACK
- WHERE col1 is not null
+                                     WHERE col1 is not null
 
 ;
 

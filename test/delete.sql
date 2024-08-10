@@ -18,7 +18,6 @@ ORDER BY id DESC
 LIMIT 4;
 
 
-
 DELETE FROM my_table
 WHERE id = 9;
 

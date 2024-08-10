@@ -24,7 +24,6 @@ SELECT *
    AND NOT m.is_visible;
 
 
-
 SELECT *
  FROM my_table m
  WHERE m.status = "success"
@@ -86,20 +85,16 @@ SELECT *
 
 SELECT id
  FROM my_table m
- WHERE m.id > 4 AND id < 3;
+ WHERE m.id > 4
+   AND id < 3;
 
 
-
-SELECT
-  *
- FROM
-   a
- WHERE
-   a LIKE '%a'
-     AND a NOT LIKE '%a'
-     AND a SIMILAR TO '%a'
-     AND a NOT SIMILAR TO '%a';
-
+SELECT *
+ FROM a
+ WHERE a LIKE '%a'
+   AND a NOT LIKE '%a'
+   AND a SIMILAR TO '%a'
+   AND a NOT SIMILAR TO '%a';
 
 
 SELECT
@@ -113,11 +108,14 @@ SELECT
 
 
 
-SELECT 'abc' ^@ 'a' || 'z';
+SELECT 'abc'
+  ^@ 'a'
+  || 'z';
 
 
-
-SELECT 'fat cats ate rats' @@ !! ('cat' <-> 'rat'::tsquery);
+SELECT
+  'fat cats ate rats'
+    @@ !! ('cat' <-> 'rat'::tsquery);
 
 
 

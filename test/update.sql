@@ -22,7 +22,8 @@ UPDATE my_table
 SET ts = now();
 
 
-UPDATE table_a a
+UPDATE
+  table_a a
 INNER JOIN table_b b ON b.a = a.uid
 INNER JOIN table_c c ON c.b = b.uid
 SET a.d = 5;

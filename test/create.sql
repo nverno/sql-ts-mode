@@ -238,13 +238,9 @@ CREATE TABLE tableName AS WITH _cte AS (
 
 
 CREATE TABLE tb AS
-  (
-   SELECT 1 as col
-  )
+  (SELECT 1 as col)
   UNION ALL
-  (
-   SELECT 2 as col
-  );
+  (SELECT 2 as col);
 
 
 
@@ -270,7 +266,8 @@ CREATE EXTERNAL TABLE tab
   (col int, col2 string, col3 binary)
   PARTITIONED BY (col int)
   SORT BY (col)
-  ROW FORMAT DELIMITED FIELDS TERMINATED BY ';' ESCAPED BY '"'
+  ROW FORMAT DELIMITED
+    FIELDS TERMINATED BY ';' ESCAPED BY '"'
     LINES TERMINATED BY '\n'
   STORED AS PARQUET
   LOCATION '/path/data'
@@ -283,13 +280,11 @@ CREATE EXTERNAL TABLE tab
 CREATE TABLE tab
   PARTITIONED BY (col1, col2)
   STORED AS PARQUET
-  AS
-  SELECT
+  AS SELECT
     col1,
     col2,
     col3
    FROM tab2
-
 ;
 
 
@@ -344,7 +339,9 @@ CREATE SCHEMA IF NOT EXISTS test AUTHORIZATION joe;
 CREATE SCHEMA hollywood
   CREATE TABLE films (title text, release date, awards text[])
   CREATE VIEW winners AS
-    SELECT title, release FROM films WHERE awards IS NOT NULL;
+    SELECT title, release
+     FROM films
+     WHERE awards IS NOT NULL;
 
 
 
@@ -402,7 +399,10 @@ CREATE TRIGGER update_at BEFORE DELETE ON public.table_A FOR EACH ROW EXECUTE FU
 
 
 
-CREATE TRIGGER update_at_user AFTER UPDATE OF name ON public."user" EXECUTE FUNCTION public.update_timestamp();
+CREATE TRIGGER update_at_user
+  AFTER UPDATE OF name
+  ON public."user"
+  EXECUTE FUNCTION public.update_timestamp();
 
 
 

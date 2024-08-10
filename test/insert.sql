@@ -78,7 +78,7 @@ FROM
 
 
 INSERT OVERWRITE tab1 PARTITION (key1 = 'val1',
-                        key2 = 'val2')
+  key2 = 'val2')
 SELECT col1,
        col2
 FROM
